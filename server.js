@@ -1,19 +1,21 @@
 const http = require('http');
 const url = require('url');
 const fs = require("fs");
-const xml2js = require("xml2js");
+//const xml2js = require("xml2js");
 
-let sample = fs.readFileSync("sample.jmx", "utf8");
+const port = 3000;
+const sample = fs.readFileSync("sample.jmx", "utf8");
+const outputDir = "output";
 
 http.createServer((request, response) => {
     //console.log(request);
-    let buffer = sample.replace("${PATH}", url.parse(request.url, true).path)
+    let buffer = sample.replace("${PATH}", url.parse(request.url, true).path.replace("&", "&amp;"))
         .replace("${HTTP_METHOD}", request.method);
 
     let body = [];
 
     request.on('data', chunk => {
-        body.push(chunk)
+        body.push(chunk);
     });
 
     request.on('end', () => {
@@ -23,27 +25,23 @@ http.createServer((request, response) => {
             buffer = buffer.replace("${BODY}", "");
         }
 
-        let fileName = "output" + url.parse(request.url, true).pathname + ".jmx"
+        let fileName = outputDir + url.parse(request.url, true).pathname + ".jmx"
 
         fs.writeFile(fileName, buffer, (error) => {
+
             if(error)
                 throw error;
+
             console.log("Writing file: " + fileName);
+
+            response.statusCode = 200;
+            response.setHeader("Content-Type", "application/json");
+            response.end("{\"status\": \"success\"}");
         })
-
-        response.statusCode = 200;
-        response.setHeader("Content-Type", "application/json");
-        response.end("{\"status\": \"success\"}")
-
     });
 
-
-
-}).listen(3000, (error) => {
+}).listen(port, (error) => {
     if(error)
         throw error;
-
-
-
-    console.log("server is listening on 3000");
+    console.log(`server is listening on ${port}`);
 });
