@@ -23,7 +23,4 @@ describe("Load xml template", () => {
         });*/
     });
 
-    test("it should", () =>{
-
-    });
 });
