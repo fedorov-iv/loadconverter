@@ -14,11 +14,11 @@ http.createServer((request, response) => {
 
     let body = [];
 
-    request.on('data', chunk => {
+    request.on("data", chunk => {
         body.push(chunk);
     });
 
-    request.on('end', () => {
+    request.on("end", () => {
         if(body.length > 0){
             buffer = buffer.replace("${BODY}", body.join());
         } else {
