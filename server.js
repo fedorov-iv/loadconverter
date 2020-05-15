@@ -3,7 +3,7 @@ const url = require('url');
 const fs = require("fs");
 //const xml2js = require("xml2js");
 
-const port = 3000;
+const port = 80;
 const sample = fs.readFileSync("sample.jmx", "utf8");
 const outputDir = "output";
 
@@ -25,7 +25,14 @@ http.createServer((request, response) => {
             buffer = buffer.replace("${BODY}", "");
         }
 
-        let fileName = outputDir + url.parse(request.url, true).pathname + ".jmx"
+        let fullPath = outputDir + url.parse(request.url, true).pathname;
+        fs.mkdirSync(fullPath, { recursive: true });
+
+        //let dt = new Date();
+
+        let fn = new Date().getMilliseconds();
+
+        let fileName =  fullPath + "/" + fn + ".jmx"
 
         fs.writeFile(fileName, buffer, (error) => {
 
